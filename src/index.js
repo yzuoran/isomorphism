@@ -1,6 +1,7 @@
 import Hapi from 'hapi';
 import nunjucks from 'nunjucks';
 import Application from './lib/application';
+import HelloController from './controller/hello';
 nunjucks.configure('./dist');
 
 // create server
@@ -10,14 +11,17 @@ const server = Hapi.server({
 });
 
 const application = new Application({
-    '/': (request, h) => {
-        return nunjucks.render('index.html', {
-            fname: 'RICK',
-            lname: 'Sanchez'
-        });
-    }
+    '/hello/{name*}': HelloController
 }, {
-    server
+    server,
+    document: (application, controller, request, h, body, callback) => {
+        try {
+            const html = nunjucks.render('./index.html', { body });
+            return callback(null, html);
+        } catch (err) {
+            return callback(err, null);
+        }
+    }
 });
 
 application.start();
