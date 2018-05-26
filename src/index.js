@@ -1,5 +1,6 @@
 import Hapi from 'hapi';
 import nunjucks from 'nunjucks';
+import Application from './lib/application';
 nunjucks.configure('./dist');
 
 // create server
@@ -8,16 +9,15 @@ const server = Hapi.server({
     port: 8000
 });
 
-// add router
-server.route({
-    method: 'GET',
-    path: '/hello',
-    handler: function (request, h) {
+const application = new Application({
+    '/': (request, h) => {
         return nunjucks.render('index.html', {
             fname: 'RICK',
             lname: 'Sanchez'
         });
     }
+}, {
+    server
 });
 
-server.start();
+application.start();
